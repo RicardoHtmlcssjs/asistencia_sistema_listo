@@ -62,6 +62,33 @@ $("#opc_adm_1").on("click",()=>{
 // BOTON EDITAR REGISTROS DE LOS USUARIOS
 function editar_usu(id){
 	$("#exampleModal3").modal("show");
+	let id_usu_act = $("#id_usu").val("");
+	let usu_usu_act = $("#usu_adm").val(""); 
+	let nom_usu_act = $("#nom_adm").val("");
+	let ci_usu_act = $("#ci_adm").val("");
+	let adm_usu_act = $("#adm_adm").val("");
+	let email_usu_act = $("#email_adm").val("");
+	let error_usu_act = $("#error_soli_exp3").html("");
 	usuario.editar_usu(id);
 }
 // SELECT DE OPCIONES DE ADMINISTRADOR
+function sel_mos_per(){
+	$("#adm_adm").val($("#opc_adm").val());
+}
+
+// BOTON DE ACTUALIZAR USUARIO COMO ADMINISTRADOR
+$("#btn_acttualizar_usu").on("click", function(){
+	let id_usu_act = $("#id_usu").val();
+	let usu_usu_act = $("#usu_adm").val(); 
+	let nom_usu_act = $("#nom_adm").val();
+	let ci_usu_act = $("#ci_adm").val();
+	let adm_usu_act = $("#adm_adm").val();
+	let email_usu_act = $("#email_adm").val();
+	if(expresiones_re.email(email_usu_act)){
+		usuario.act_usuario_adm(id_usu_act, usu_usu_act, nom_usu_act, ci_usu_act, adm_usu_act, email_usu_act);
+	}else{
+		$("#error_soli_exp3").html((accion.mensaje_alerta("danger", "Correo no permitido", "view/images/icono_danger.png")));
+	}
+	
+	
+});

@@ -184,13 +184,62 @@
 			parent::conecta();
 			$db = $this->conn;
 			$query = $db->execute("SELECT * FROM permisos");
+			$result = "";
 			$array = array();
-			$result = "<select class='form-select' aria-label='Default select example'>";
 			foreach ($query as $key) {
-				$result .= "<option value='".$key["id_permisos"]."'>".$key["desc_permisos"]."</option>";
+				$result .= "<option value='".$key["desc_permisos"]."'>".$key["desc_permisos"]."</option>";
 			}
-			
-			$result .= "</select>";
+			return $result;
+		}
+		// guardar actualizacion de DATOS DEL USUARIO
+		public function act_usuario_adm($id_usu_act, $usu_usu_act, $nom_usu_act, $ci_usu_act, $adm_usu_act, $email_usu_act){
+			parent::conecta();
+			$db = $this->conn;
+
+			// SI UN CAMPO ESTA VACIO 
+			if(empty($id_usu_act) || empty($usu_usu_act) || empty($nom_usu_act) || empty($nom_usu_act) || empty($ci_usu_act) || empty($adm_usu_act) || empty($email_usu_act)){
+				return(0);
+			}
+			// SELECT ID DE PERMISOS
+			$query2 = $db->execute("SELECT id_permisos FROM permisos WHERE desc_permisos = '".$adm_usu_act."'");
+			foreach ($query2 as $key2) {
+				$id_per = $key2["id_permisos"]; 
+			}
+
+			// DATOS DE EL USUARIO YA ALAMACENADOS
+			$query = $db->execute("SELECT * FROM usuarios WHERE id = $id_usu_act");
+			foreach ($query as $key) {
+				$usu_reg = $key["usuario_asis"];
+				$nom_reg = $key["nombre_completo"];
+				$ci_reg = $key["ci_asis"];
+				$adm_reg = $key["id_permisos"];
+				$email_reg = $key["email"];
+			}
+
+
+			// 
+			// if ($usu_usu_act != $usu_reg || $ci_usu_act != $ci_reg || $email_usu_act != $email_reg) {
+				$query3 = $db->execute("SELECT * FROM usuarios");
+				foreach ($query3 as $key3) {
+					if($usu_usu_act == $key3["usuario_asis"] && $key3["usuario_asis"] != $usu_reg){
+						return "El usuario ya existe";
+					}
+					if($ci_usu_act == $key3["ci_asis"] && $key3["ci_asis"] != $ci_reg){
+						return "La cedula ya existe";
+					}
+					if($email_usu_act == $key3["email"] && $key3["email"] != $email_reg) {
+						return "El correo electronico ya existe";
+					}
+				}
+			// }
+
+			$query5 = $db->execute("UPDATE usuarios SET  usuario_asis = '".$usu_usu_act."', nombre_completo = '".$nom_usu_act."', ci_asis = '".$ci_usu_act."', id_permisos = $id_per, email = '".$email_usu_act."' WHERE id = $id_usu_act");
+
+			if($query5){
+				$result = 1;
+			}else{
+				$result = 2;
+			}
 			return $result;
 		}
 	}

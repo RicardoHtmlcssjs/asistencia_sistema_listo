@@ -328,6 +328,7 @@ class Usuarios{
 			}
 		});
 	}
+	// mostarr valos de usuario a editar como administrador
 	editar_usu(id){
 		$.ajax({
 			url: "model/ajax/ajax_editar_usu.php",
@@ -352,12 +353,38 @@ class Usuarios{
 			}
 		});
 	}
+	// mostrar opciones en el select de actualizar usuario como administrador
 	opc_administrador(){
 		$.ajax({
 			url: "model/ajax/ajax_opc_administrador.php",
 			type: "POST",
 			success: function(result){
 				$("#opc_adm").html(result);
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	}
+	// accion de actualizar el usuaruio al eviar el formualrio del modal 
+	act_usuario_adm(id_usu_act, usu_usu_act, nom_usu_act, ci_usu_act, adm_usu_act, email_usu_act){
+		$.ajax({
+			url: "model/ajax/ajax_acc_editar_usu.php",
+			type: "POST",
+			data: {				
+				id_usu_act: id_usu_act, usu_usu_act: usu_usu_act, nom_usu_act: nom_usu_act, ci_usu_act: ci_usu_act, adm_usu_act: adm_usu_act, email_usu_act: email_usu_act
+			},
+			success: function(result){
+				if(result == 1){
+					$("#exampleModal3").modal("hide");
+					usuario.usus_login();
+				}else if(result == 0){
+					$("#error_soli_exp3").html((accion.mensaje_alerta("danger", "Algun campo esta vacio", "view/images/icono_danger.png")));
+				}else if(result == 2){
+					$("#error_soli_exp3").html((accion.mensaje_alerta("danger", "Ha ocurrido un error vacio", "view/images/icono_danger.png")));
+				}else{
+					$("#error_soli_exp3").html((accion.mensaje_alerta("danger", result, "view/images/icono_danger.png")));
+				}
 			},
 			error: function(error){
 				console.log(error);
