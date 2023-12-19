@@ -4,6 +4,10 @@
 $('#entrar').on("click", function(){
 	usuario.login_usuario();
 });
+// CLICK EN MI PERFIL
+// $("#opnb_perfil").on("click", function(){
+// 	usuario.mi_perfil();
+// })	
 
 // click nabvar opcion 1 acceso en la mañana
 $("#opnb1").on("click", function(){
@@ -20,6 +24,12 @@ function agre_mañana(){
 		alert("De las 12:00 PM en adelante debes agregar al visitante en, acceso de tarde")
 	}else{
 		$("#exampleModal1").modal("show");
+		$("#sele_visi").val("");
+		$("#ci").val("");
+		$("#direccion_visi").val("");
+		$("#motivo_visi").val("");
+		$("#cargo_visi").val("");
+		$("#error_soli_exp1").html("");
 	}
 }
 // AGREGAR VISITANTE EN EL ORARIO DE LA TARDE
@@ -29,10 +39,12 @@ function agre_tarde(){
 		alert("Desde las 11:59 AM o antes, debe agregarse el visitante en el acceso de mañana");
 	}else{
 		$("#exampleModal1").modal("show");
+			$("#sele_visi").val("");
 			$("#ci").val("");
 			$("#direccion_visi").val("");
 			$("#motivo_visi").val("");
 			$("#cargo_visi").val("");
+			$("#error_soli_exp1").html("");
 	}
 }
 $("#ci").on("keyup", function(){
@@ -41,14 +53,18 @@ $("#ci").on("keyup", function(){
 
 // boton de enviar formulario del modal agregar visitante
 $("#guargar_visi").on("click", function(){
-	let cedula_visi = $("#ci").val();
+	let cedula_visi = $("#sele_visi").val();
 	let direccion_visi = $("#direccion_visi").val();
 	let motivo_visi = $("#motivo_visi").val();
 	let cargo_visi = $("#cargo_visi").val();
 	hora_act = accion.obtener_hora();
 	usuario.guardar_visi(cedula_visi, direccion_visi, motivo_visi, hora_act, cargo_visi);
-	$("#exampleModal1").modal("hide");
+	
 })
+// marcar hora salida de la mañana
+function marcar_sali_manana(id_visi){
+	usuario.marcar_sali_manana(id_visi);
+}
 // marcar hora de salida en  la tarde
 function marcar_sali_tarde(id_visi){
 	usuario.marcar_sali_tarde(id_visi);
@@ -91,4 +107,35 @@ $("#btn_acttualizar_usu").on("click", function(){
 	}
 	
 	
+});
+// BOTOBN MODAL AGREGAR USUARIO
+function nv_usu(){
+	$("#exampleModal4").modal("show");
+	$("#usu_nv").val("");
+	$("#usu_nom").val("");
+	$("#usu_ci").val("");
+	$("#usu_email").val("");
+	$("#error_soli_exp4").html("")
+	$('#btn_agre_usu').attr("disabled", false);
+	usuario.opc_administrador_cre();
+};
+
+// BOTON DE AGREGAR USUARIO COMO ADMINISTRADIR
+$("#btn_agre_usu").on("click", function(){
+	let usu_n = $("#usu_nv").val();
+	let usu_nom = $("#usu_nom").val();
+	let usu_ci = $("#usu_ci").val();
+	let usu_opc_adm = $("#usu_adm_nv").val();
+	let usu_email = $("#usu_email").val();
+	
+	usuario.nuev_usu(usu_n, usu_nom, usu_ci, usu_opc_adm, usu_email);
+	// $('#btn_agre_usu').attr("disabled", true);
+});
+// CAMBIAR CONTRASEÑA COMO ADMINISTRADOR
+function camb_con_u(id_usu){
+	usuario.cambio_con_usu(id_usu);
+}
+// OPCION 2 COMO ADMINISTRADOR TRANSACCIONES COMO ADMINISTRADOR
+$("#opc_adm_2").on("click", function(){
+	usuario.trans_usus_login_adm();
 });

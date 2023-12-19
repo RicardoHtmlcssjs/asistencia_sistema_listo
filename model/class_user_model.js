@@ -8,7 +8,6 @@ class Usuarios{
 					usuario.mostrar_personal_mañana(result);
 				}else if(result == 1.1){
 					usuario.mostrar_personal_mañana(result);
-					// usuario.mostrar_usuario();
 				}
 			},
 			error: function(error){
@@ -48,7 +47,6 @@ class Usuarios{
 					$("#resp_login").html((accion.mensaje_alerta("danger", "Algun campo esta vacio", "view/images/icono_danger.png")));
 				}else if(result == 1 || result == 1.1){
 					usuario.mostrar_personal_mañana(result);
-					usuario.mostrar_usuario();
 				}else if(result == 0){
 					$("#resp_login").html((accion.mensaje_alerta("danger", "Usuario o contraseña son incorrecta", "view/images/icono_danger.png")));
 				}else{
@@ -63,6 +61,26 @@ class Usuarios{
 
 		});
 	}
+	// mostrar mi perfil 
+	// mi_perfil(){
+	// 	$.ajax({
+	// 		url: "model/ajax/ajax_perfil.php",
+	// 		type: "POST",
+	// 		success: function(result){
+	// 			$("#cuerpo").html("");
+	// 			$("#opnb_perfil").addClass("opnb");
+	// 			$("#opnb1").removeClass("opnb");
+	// 			$("#opnb2").removeClass("opnb");
+	// 			$("#opc_adm_2").removeClass("opnb");
+	// 			$("#opc_adm_1").removeClass("opnb");
+	// 			$("#cuerpo").html(result);
+	// 			$("#cont_2_tbl").append(header_table_personal("Mi perfil - usuario","view/images/expedientes.png"));
+	// 		},
+	// 		error: function(error){
+	// 			console.log(error);
+	// 		}
+	// 	});
+	// }
 	// mostrar pesonal luego de logearse y btn navbar mañana
 	mostrar_personal_mañana(){
 				$("#cuerpo").css("width", "80%");
@@ -71,10 +89,8 @@ class Usuarios{
 				$("#navbar-le").addClass("fondo_le");
 				$("#opnb2").removeClass("opnb");
 				$("#opnb_perfil").removeClass("opnb");
-				// $("#opc_adm_1").removeClass("opnb");
-				// $("#opc_adm_2").removeClass("opnb");
-				// $("#opc_adm_3").removeClass("opnb");
-				// $("#opc_adm_4").removeClass("opnb");
+				$("#opc_adm_1").removeClass("opnb");
+				$("#opc_adm_2").removeClass("opnb");
 				$("#opnb1").addClass("opnb"); 
 
 		$("#cuerpo").html(tabla_asistencia_m());
@@ -100,7 +116,7 @@ class Usuarios{
 	                "data": null,
 	                "render": function(data, type, row) {
 	                    if (data[8] === null) {
-	                        return "<div class='d-flex justify-content-center'><button type='button' class='btn btn-primary btn-sm py-0' id='mar_sali' name='mar_sali'>Marcar salida</button></div>";
+	                        return "<div class='d-flex justify-content-center'><button type='button' class='btn btn-primary btn-sm py-0' id='mar_sali' name='mar_sali' onclick='marcar_sali_manana("+ row.id_asistencia_mana +")'>Marcar salida</button></div>";
 	                    } else {
 	                        return data[8];
 	                    }
@@ -134,10 +150,8 @@ class Usuarios{
 				$("#navbar-le").addClass("fondo_le");
 				$("#opnb1").removeClass("opnb");
 				$("#opnb_perfil").removeClass("opnb");
-				// $("#opc_adm_1").removeClass("opnb");
-				// $("#opc_adm_2").removeClass("opnb");
-				// $("#opc_adm_3").removeClass("opnb");
-				// $("#opc_adm_4").removeClass("opnb");
+				$("#opc_adm_1").removeClass("opnb");
+				$("#opc_adm_2").removeClass("opnb");
 				$("#opnb2").addClass("opnb"); 
 
 		$("#cuerpo").html(tabla_asistencia_m());
@@ -227,20 +241,19 @@ class Usuarios{
 				cedula_visi: cedula_visi, direccion_visi: direccion_visi, motivo_visi: motivo_visi, hora_act: hora_act, cargo_visi: cargo_visi 
 			},
 			success: function(result){
-				let res = "";
 				if(result == 2){
-					res = "algun campo esta vacio";
+					$("#error_soli_exp1").html((accion.mensaje_alerta("danger", "Algun campo esta vacio", "view/images/icono_danger.png")));
 				}else if(result == 1){
 					let hora = accion.obtener_hora();
 					if(hora <= 11){
 						usuario.mostrar_personal_mañana();
+						$("#exampleModal1").modal("hide");
 					}else{
 						usuario.mostrar_personal_tarde();
+						$("#exampleModal1").modal("hide");
 					}
-					res = "Todo bien";
-
 				}else{
-					res = "Ha ocurrido un error";
+					alert(result);
 				}
 			},
 			error: function(error){
@@ -268,6 +281,26 @@ class Usuarios{
 			}
 		});
 	}
+	// MARCAS SALIDA DE LA TARDE
+	marcar_sali_manana(id_visi){
+		$.ajax({
+			url: "model/ajax/ajax_marcar_sali_manana.php",
+			type: "POST",
+			data: {				
+				id_visi: id_visi 
+			},
+			success: function(result){
+				if(result == 1){
+					usuario.mostrar_personal_mañana();
+				}else{
+					alert(result);
+				}
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	}
 	// mostrar tabla usuarios como administrador
 	usus_login(){
 		$("#navbar-le").removeClass("dsp_no");
@@ -283,7 +316,7 @@ class Usuarios{
 
 		$("#cuerpo").html(tabla_usuario_login());
 		$("#cont_2_tbl").append(header_table_personal("Administrador - Usuarios","view/images/expedientes.png"));
-		$("#agre_btn_opc").append(accion.boton2("Agregar un usuario", "success", "fa-solid fas fa-user-plus", "btn_agre_visi_tarde", "agre_tarde()"));
+		$("#agre_btn_opc").append(accion.boton2("Agregar un usuario", "success", "fa-solid fas fa-user-plus", "btn_nuev_usu", "nv_usu()"));
 		$('#table_perso_usu').DataTable({
 			"ajax":{
 				"url": "model/ajax/ajax_mostrar_usuario.php",
@@ -296,7 +329,7 @@ class Usuarios{
 				{
 	                "data": null,
 	                "render": function(data, type, row) {
-	                        return "<div class='d-flex justify-content-center'><button type='button' class='btn btn-primary btn-sm py-0' id='mar_sali' name='mar_sali' onclick='marcar_sali_tarde("+ row.id +")'>Cambiar contraseña</button></div>";
+	                        return "<div class='d-flex justify-content-center'><button type='button' class='btn btn-primary btn-sm py-0' id='mar_sali' name='mar_sali' onclick='camb_con_u("+ row.id +")'>Cambiar contraseña</button></div>";
 	                }
             	},
 				{"data": "fecha_hora_reg"},
@@ -391,6 +424,117 @@ class Usuarios{
 			}
 		});
 	}
+	// mostrar opciones en el select de actualizar usuario como administrador
+	opc_administrador_cre(){
+		$.ajax({
+			url: "model/ajax/ajax_opc_administrador_cre.php",
+			type: "POST",
+			success: function(result){
+				$("#usu_adm_nv").html(result);
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	}
+	// CREACION DE USUARIO COMO ADMINISTRADOR
+	// exampleModal4
+	nuev_usu(usu_n, usu_nom, usu_ci, usu_opc_adm, usu_email){
+		$.ajax({
+			url: "model/ajax/ajax_agregar_usu.php",
+			type: "POST",
+			data: {				
+				usu_n: usu_n, usu_nom: usu_nom, usu_ci: usu_ci, usu_opc_adm: usu_opc_adm, usu_email: usu_email
+			},
+			success: function(result){
+				if(result == 0){
+					$("#error_soli_exp4").html((accion.mensaje_alerta("danger", "Algun campo esta vacio", "view/images/icono_danger.png")));
+				}else if(result == 1){
+					$("#error_soli_exp4").html((accion.mensaje_alerta("danger", "El usuario ya existe", "view/images/icono_danger.png")));
+				}else if(result == 2){
+					$("#error_soli_exp4").html((accion.mensaje_alerta("danger", "La cedula ya existe", "view/images/icono_danger.png")));
+				}else if(result == 3){
+					$("#error_soli_exp4").html((accion.mensaje_alerta("danger", "El correo ya existe", "view/images/icono_danger.png")));
+				}else if(result == 10){
+					$('#btn_agre_usu').attr("disabled", true);
+					$("#exampleModal4").modal("hide");
+					usuario.usus_login();
+					// alert("La contraseña ha sido enviada a el correo del usuario");
+					// $('#btn_agre_usu').attr("disabled", false);
+				}else{
+					alert(result);
+				}
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	}
+	// CAMBIO DE CONTRASEÑA COMO ADMINISTRADOR
+	cambio_con_usu(id){
+		$.ajax({
+			url: "model/ajax/ajax_cambio_con_usu.php",
+			type: "POST",
+			data: {
+				id: id
+			},
+			success: function(result){
+				if(result == 1){
+					alert("Contraseña cambiada");
+				}else{
+					alert(result);
+				}
+			},
+			error: function(error){
+				console.log(error);
+			}
+		});
+	}
+	// mostrar tabla usuarios como administrador
+	trans_usus_login_adm(){
+		$("#navbar-le").removeClass("dsp_no");
+		$("#btn_cerrar_ss").removeClass("dps_none");
+		$("#navbar-le").addClass("fondo_le");
+		$("#opnb_perfil").removeClass("opnb");
+		$("#opnb1").removeClass("opnb");
+		$("#opnb2").removeClass("opnb");
+		$("#opc_adm_1").removeClass("opnb");
+		$("#opc_adm_1").addClass("opnb");
+
+		$("#cuerpo").html(tabla_trans_usuario());
+		$("#cont_2_tbl").append(header_table_personal("Administrador - Transacciones de los usuarios","view/images/expedientes.png"));
+		$('#table_perso_adm_usu').DataTable({
+			"ajax":{
+				"url": "model/ajax/ajax_trans_usu_adm.php",
+				"type": "POST",
+				"dataSrc":""
+			},
+			"columns":[
+				{"data": "usuario_asis"},
+				{"data": "usu_adm"},
+				{"data": "fecha_tran"},
+				{"data": "desc_tran"},
+				{"data": "hora_tran"}
+			],
+			ordering: false,
+			language: {
+				lengthMenu: "Mostrar _MENU_ registros por pagina",
+				zeroRecords: "Ningun usuario encontrado",
+				info: "Mostrando de _START_ a _END_ de un total de _TOTAL_ registros",
+				infoEmpty: "Ningun usuario encontrado",
+				infoFiltered: "(filtrados desde _MAX_ registros totales)",
+				search: "Buscar...",
+				loadingRecords: "Cargando...",
+				paginate: {
+					first: "Primero",
+					last: "Ultimo",
+					next: "Siguiente",
+					previous: "Anterior"
+				}
+			}
+		});
+	}
+	
 }
 let usuario = new Usuarios();
 usuario.session();

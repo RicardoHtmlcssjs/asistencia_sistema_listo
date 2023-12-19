@@ -53,18 +53,20 @@
 			}
 			// mostrar todo el personal
 		}
-		// mostrar usuario en el header
-		public function mostrar_usuario(){
-			parent::conecta();
-			$db = $this->conn;
-			session_start();
-			$id_usu = $_SESSION["id_usu_log_asis"];
-			$query = $db->execute("SELECT usuario_asis from usuarios where id = $id_usu");
-			foreach ($query as $key) {
-				$usuario = $key['usuario_asis'];
-			}
-			return $usuario;
-		}
+		// MI PERFIL
+		// perfil()
+		// // mostrar usuario en el header
+		// public function mostrar_usuario(){
+		// 	parent::conecta();
+		// 	$db = $this->conn;
+		// 	session_start();
+		// 	$id_usu = $_SESSION["id_usu_log_asis"];
+		// 	$query = $db->execute("SELECT usuario_asis from usuarios where id = $id_usu");
+		// 	foreach ($query as $key) {
+		// 		$usuario = $key['usuario_asis'];
+		// 	}
+		// 	return $usuario;
+		// }
 		// mostrar tabla acceso de mañana
 		public function mostrar_personal_mañana(){
 			parent::conecta();
@@ -106,13 +108,15 @@
 		}
 		// GUARDAR VISITANTE MAÑANA  Y TARDE
 		public function guardar_visitante($cedula_visi, $direccion_visi, $motivo_visi, $hora_act, $cargo_visi){
-			parent::conecta2();
-			$db2 = $this->conn2;
+			// parent::conecta2();
+			// $db2 = $this->conn2;
 			if(empty($cedula_visi) or empty($direccion_visi) or empty($motivo_visi) or empty($cargo_visi)){
 				return 2;
 			}
 			if($hora_act >= 12){
 				// tarde
+				parent::conecta2();
+				$db2 = $this->conn2;
 				$query1 = $db2->execute("SELECT primer_nombre, primer_apellido FROM dsaime WHERE cedula = $cedula_visi");
 				foreach ($query1 as $key1){
 					$nom_com = $key1["primer_nombre"]. " " .$key1["primer_apellido"];
@@ -127,9 +131,10 @@
 				}else{
 					return 0;
 				}
-				return $usu_adm;
 			}elseif($hora_act <= 11) {
 				// mañana
+				parent::conecta2();
+				$db2 = $this->conn2;
 				$query1 = $db2->execute("SELECT primer_nombre, primer_apellido FROM dsaime WHERE cedula = $cedula_visi");
 				foreach ($query1 as $key1){
 					$nom_com = $key1["primer_nombre"]. " " .$key1["primer_apellido"];
@@ -139,7 +144,11 @@
 				parent::conecta();
 				$db = $this->conn;
 				$query2 = $db->execute("INSERT INTO sis_asistencia_personal_mañana (fecha_registro, nombre_visi, cedula_visi, direccion_visi, cargo_visi, motivo_visi, fecha_entrada_visi, asistente_adm) VALUES (now(), '".$nom_com."', $cedula_visi, '".$direccion_visi."', '".$cargo_visi."', '".$motivo_visi."', now(), $usu_adm)");
-				return $usu_adm;
+				if($query2){
+					return 1;
+				}else{
+					return 0;
+				}
 			}
 		}
 		// MARCAR SALIDA DEL VISITANTE
@@ -147,6 +156,18 @@
 			parent::conecta();
 			$db = $this->conn;
 			$query = $db->execute("UPDATE sis_asistencia_personal_tarde SET  fecha_salida_visi = now() WHERE id_asistencia_tarde = $id_visi");
+			if($query){
+				return 1;
+			}else{
+				return 0;
+			}
+		}
+
+		// MARCAR SALIDA DEL VISITANTE
+		public function marcar_sali_manana($id_visi){
+			parent::conecta();
+			$db = $this->conn;
+			$query = $db->execute("UPDATE sis_asistencia_personal_mañana SET  fecha_salida_visi = now() WHERE id_asistencia_mana = $id_visi");
 			if($query){
 				return 1;
 			}else{
@@ -230,11 +251,116 @@
 
 			$query5 = $db->execute("UPDATE usuarios SET  usuario_asis = '".$usu_usu_act."', nombre_completo = '".$nom_usu_act."', ci_asis = '".$ci_usu_act."', id_permisos = $id_per, email = '".$email_usu_act."' WHERE id = $id_usu_act");
 
+			$descipcion = "Actualizacion de dato.";
+				session_start();
+				$id_usu_admin = $_SESSION["id_usu_log_asis"];
+				$query6 = $db->execute("INSERT INTO transaccion_usus (id_usu_tran, id_adm_tran, fecha_tran, desc_tran, hora_tran) VALUES ($id_usu_act, $id_usu_admin, now(), '". $descipcion ."', now())");
+
 			if($query5){
 				$result = 1;
 			}else{
 				$result = 2;
 			}
+			return $result;
+		}
+		// MOSTRAR SELECT DE ADMINISTRADOR
+		public function opc_administrador_cre(){
+			parent::conecta();
+			$db = $this->conn;
+			$query = $db->execute("SELECT * FROM permisos");
+			$result = "";
+			$array = array();
+			foreach ($query as $key) {
+				$result .= "<option value='".$key["id_permisos"]."'>".$key["desc_permisos"]."</option>";
+			}
+			return $result;}
+		// AGREAGR USUARIO COMOA ADMINISTRADOR
+		public function agregar_usu($usu_n, $usu_nom, $usu_ci, $usu_opc_adm, $usu_email){
+			parent::conecta();
+			$db = $this->conn;
+			
+			if(empty($usu_n) || empty($usu_nom) || empty($usu_ci) || empty($usu_opc_adm) || empty($usu_email)){
+				return 0;
+			}else {
+				$query3 = $db->execute("SELECT * FROM usuarios");
+				foreach ($query3 as $key3) {
+					if($usu_n == $key3["usuario_asis"]){
+						return 1;
+					}
+					if($usu_ci == $key3["ci_asis"]){
+						return 2;
+					}
+					if($usu_email == $key3["email"]) {
+						return 3;
+					}
+				}
+				$num_ram = mt_rand(1,1000);
+				$nueva_con_ne = $usu_n . $num_ram;
+				$nueva_con_en = md5($usu_n . $num_ram);
+				$query4 = $db->execute("INSERT INTO usuarios (usuario_asis, password_asis, nombre_completo, fecha_hora_reg, ci_asis, id_permisos, email) VALUES ('".$usu_n."', '".$nueva_con_en."', '".$usu_nom."', now(), $usu_ci, $usu_opc_adm, '".$usu_email."')");
+
+				$query6 = $db->execute("SELECT id FROM usuarios ORDER BY id ASC");
+				foreach ($query6 as $key6){
+					$id_usu_nv = $key6["id"];
+				}
+				
+				$descipcion = "Creacion de usuario";
+				session_start();
+				$id_usu_admin = $_SESSION["id_usu_log_asis"];
+				$query5 = $db->execute("INSERT INTO transaccion_usus (id_usu_tran, id_adm_tran, fecha_tran, desc_tran, hora_tran) VALUES ($id_usu_nv, $id_usu_admin, now(), '". $descipcion ."', now())");
+
+				include("class_email.php");
+				$ema = new Email();			
+				$ema->enviar_email($nueva_con_ne, $usu_n, $usu_email);
+				return 10;
+			}
+		}
+		// cambio de contraseña como administrador
+		public function cam_contra_adm($id){
+			parent::conecta();
+			$db = $this->conn;
+				$query = $db->execute("SELECT usuario_asis, email FROM usuarios  WHERE id = '".$id."'");
+				foreach ($query as $key) {
+					$usu_n = $key["usuario_asis"];
+					$usu_email = $key["email"];
+				}
+			$num_ram = mt_rand(1,1000);
+			$nueva_con_ne = $usu_n . $num_ram; 
+			$nueva_con = md5($nueva_con_ne);
+
+			$query2 = $db->execute("UPDATE usuarios SET password_asis = '".$nueva_con."' WHERE id = $id");
+
+			$descipcion = "Dato actualizado: Cambio de contraseña.";
+			session_start();
+			$id_usu_admin = $_SESSION["id_usu_log_asis"];
+			$query3 = $db->execute("INSERT INTO transaccion_usus (id_usu_tran, id_adm_tran, fecha_tran, desc_tran, hora_tran) VALUES ($id, $id_usu_admin, now(), '". $descipcion ."', now())");
+			// $cuerpo[]=array("login" => "".$usu."", "con" => "".$nueva_con."");
+
+			if($usu_email == null){
+				return 2;
+			}else{
+				include("class_email.php");
+				$ema = new Email();			
+				$ema->enviar_email($nueva_con_ne, $usu_n, $usu_email);	
+				return 1;
+			}			
+		}
+		// TABLA DE TRANSACCIONES COMO USUARIOS
+		public function trans_usu_adm(){
+			parent::conecta();
+			$db = $this->conn;
+			$query = $db->execute("SELECT usuarios.usuario_asis, transaccion_usus.id_adm_tran, transaccion_usus.fecha_tran, transaccion_usus.desc_tran, transaccion_usus.hora_tran  FROM transaccion_usus INNER JOIN usuarios ON  transaccion_usus.id_usu_tran = usuarios.id ORDER BY id_transaccion DESC");
+			$array = array();
+			foreach ($query as $key) {
+				$usu_adm = $key["id_adm_tran"];
+				$horas = $this->hora_normal($key['hora_tran']);
+				$query2 = $db->execute("SELECT * FROM usuarios WHERE id = $usu_adm");
+				foreach ($query2 as $key2) {
+					$usuario_adm = $key2["usuario_asis"];
+					$array[]=array("usuario_asis" => "".$key['usuario_asis']."", "usu_adm" => "".$key2["usuario_asis"]."", "fecha_tran" => "".$key['fecha_tran']."", "hora_tran" => "".$horas."", "desc_tran" => "".$key['desc_tran']."");
+				}
+			}
+			$result = json_encode($array);
 			return $result;
 		}
 	}
