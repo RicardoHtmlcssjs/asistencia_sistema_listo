@@ -4,9 +4,13 @@ class Usuarios{
 			url: "model/ajax/ajax_session.php",
 			type: "POST",
 			success: function(result){
+				// administrador
 				if(result == 1){
+					
 					usuario.mostrar_personal_mañana(result);
+					// asistente
 				}else if(result == 1.1){
+					$('#opc_admin').css('display','none');
 					usuario.mostrar_personal_mañana(result);
 				}
 			},
@@ -46,6 +50,9 @@ class Usuarios{
 				if (result == 2) {
 					$("#resp_login").html((accion.mensaje_alerta("danger", "Algun campo esta vacio", "view/images/icono_danger.png")));
 				}else if(result == 1 || result == 1.1){
+					if(result == 1.1){
+						$('#opc_admin').css('display','none');
+					}
 					usuario.mostrar_personal_mañana(result);
 				}else if(result == 0){
 					$("#resp_login").html((accion.mensaje_alerta("danger", "Usuario o contraseña son incorrecta", "view/images/icono_danger.png")));
