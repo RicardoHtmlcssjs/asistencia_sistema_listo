@@ -215,10 +215,6 @@
 				$adm_reg = $key["id_permisos"];
 				$email_reg = $key["email"];
 			}
-
-
-			// 
-			// if ($usu_usu_act != $usu_reg || $ci_usu_act != $ci_reg || $email_usu_act != $email_reg) {
 				$query3 = $db->execute("SELECT * FROM usuarios");
 				foreach ($query3 as $key3) {
 					if($usu_usu_act == $key3["usuario_asis"] && $key3["usuario_asis"] != $usu_reg){
@@ -231,7 +227,6 @@
 						return "El correo electronico ya existe";
 					}
 				}
-			// }
 
 			$query5 = $db->execute("UPDATE usuarios SET  usuario_asis = '".$usu_usu_act."', nombre_completo = '".$nom_usu_act."', ci_asis = '".$ci_usu_act."', id_permisos = $id_per, email = '".$email_usu_act."' WHERE id = $id_usu_act");
 
